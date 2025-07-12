@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Activity Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      overflow: hidden;
+      color: white;
+    }
+
+    /* Reuse bubble background */
+    section {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .log-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 800px;
+      max-height: 80%;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+    }
+
+    .log-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffc107;
+    }
+
+    .log-entry {
+      background-color: rgba(255, 255, 255, 0.15);
+      margin-bottom: 12px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #fff;
+    }
+
+    .log-entry time {
+      color: #ccc;
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating bubble background -->
+  <section>
+    <div class="air air1"></div>
+    <div class="air air2"></div>
+    <div class="air air3"></div>
+    <div class="air air4"></div>
+  </section>
+
+  <div class="log-box">
+    <h2>📜 Activity Logs</h2>
+    <div id="logs">Loading...</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvle5UHAFok4ep-brffJNLw-eVp3Xp9XU",
+      authDomain: "inventory-tracker-f2581.firebaseapp.com",
+      projectId: "inventory-tracker-f2581",
+      storageBucket: "inventory-tracker-f2581.appspot.com",  // ✅ fixed typo here
+      messagingSenderId: "747922405754",
+      appId: "1:747922405754:web:7a3f3420cc5bd75c01fec3",
+      measurementId: "G-G9JBK9BZMV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const logsContainer = document.getElementById("logs");
+
+    const q = query(collection(db, "activity_logs"), orderBy("timestamp", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      logsContainer.innerHTML = "";
+      if (snapshot.empty) {
+        logsContainer.innerHTML = "<div class='log-entry'>No activity logs found.</div>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const time = data.timestamp?.seconds
+          ? new Date(data.timestamp.seconds * 1000).toLocaleString()
+          : "Time not available";
+
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        div.innerHTML = `
+          <strong>${data.user || "Unknown User"}</strong> - ${data.action}<br />
+          <em>${data.details || ""}</em>
+          <time>${time}</time>
+        `;
+        logsContainer.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Tracker Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body {
+      background: linear-gradient(to bottom right, #03045e, #023e8a);
+      background-attachment: fixed;
+      color: #fff;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('bubbles.png') repeat;
+      opacity: 0.1;
+      z-index: -1;
+      animation: float 60s linear infinite;
+    }
+
+    @keyframes float {
+      0% { background-position: 0 0; }
+      100% { background-position: 1000px 1000px; }
+    }
+
+    main {
+      flex: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .glassy-box {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 30px auto;
+      width: 95%;
+      color: #000;
+    }
+
+    header, footer {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+      color: #000;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #dee2e6;
+      text-align: center;
+    }
+
+    th {
+      background-color: #343a40;
+      color: white;
+    }
+
+    .status-sufficient { color: green; font-weight: bold; }
+    .status-low { color: orange; font-weight: bold; }
+    .status-out { color: red; font-weight: bold; }
+
+    .search {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .search input {
+      padding: 8px;
+      width: 300px;
+      font-size: 16px;
+    }
+
+   
+
+    .notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  z-index: 1000;
+  animation: fade 0.3s ease-in-out;
+}
+.notification.success { background: #28a745; }
+.notification.warning { background: #ffc107; color: #000; }
+.notification.error { background: #dc3545; }
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+    .logout-btn {
+      display: block;
+      margin: 30px auto;
+      padding: 8px 16px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    form#addForm {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    form#addForm input {
+      margin: 5px;
+      padding: 8px;
+    }
+
+    form#addForm button {
+      margin-left: 10px;
+      padding: 8px 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    table tr:hover { background-color: #f1f1f1; }
+    button:hover { transform: scale(1.05); transition: 0.2s; }
+
+    footer {
+      text-align: center;
+      padding: 15px 10px;
+      color: #fff;
+      margin-top: auto;
+    }
+.actions {
+  display: flex;
+  justify-content: space-between;  /* Distribute left and right */
+  align-items: center;
+  gap: 5px;
+}
+
+
+
+/* Common styles for Save & Confirm buttons */
+.input-row .btn-primary {
+  background-color: #7e3ff2;
+  color: white;
+  font-size: 14px;
+  padding: 6px 14px;
+  margin: 2px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-row .btn-primary:hover {
+  background-color: #602bd4;
+}
+
+/* Common styles for Cancel buttons */
+.input-row .btn-cancel {
+  background-color: #f87171;
+  color: white;
+  font-size: 14px;
+  padding: 6px 14px;
+  margin: 2px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-row .btn-cancel:hover {
+  background-color: #ef4444;
+}
+/* Container to hold buttons horizontally */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Common button base style */
+.action-buttons button {
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Add Button */
+.add-btn {
+  background-color: #f3f0ff;
+  color: #6f42c1;
+  border: 2px solid #d0bfff;
+}
+
+.add-btn:hover {
+  background-color: #d0bfff;
+  color: white;
+}
+
+/* Remove Button */
+.remove-btn {
+  background-color: #fdf2f8;
+  color: #d63384;
+  border: 2px solid #f783ac;
+}
+
+.remove-btn:hover {
+  background-color: #f783ac;
+  color: white;
+}
+
+/* Edit Button */
+.edit-btn {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeeba;
+}
+
+.edit-btn:hover {
+  background-color: #ffe8a1;
+  color: #333;
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #ffcccc;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+}
+
+.delete-btn:hover {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+
+
+  </style>
+</head>
+<body>
+ <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+  <div class="col-md-3 mb-2 mb-md-0 ps-3">
+    <a href="/" class="d-inline-flex align-items-center link-body-emphasis text-decoration-none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-house-check text-white" viewBox="0 0 16 16">
+  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z"/>
+  <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.707l.547.547 1.17-1.951a.5.5 0 1 1 .858.514"/>
+</svg>
+
+      <span class="ms-2 fw-bold text-white">Inventory Tracker</span>
+
+    </a>
+  </div>
+
+  <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+    <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
+    <li><a href="logs.html" class="nav-link px-2">Log</a></li>
+
+    <li><a href="#" class="nav-link px-2">Pricing</a></li>
+    <li><a href="#" class="nav-link px-2">FAQs</a></li>
+    <li><a href="#" class="nav-link px-2">About</a></li>
+  </ul>
+
+  <div class="col-md-3 text-end pe-3">
+    <button onclick="logout()" class="btn btn-danger">Logout</button>
+  </div>
+</header>
+
+
+
+
+
+  <main>
+    <div class="glassy-box">
+      <h1>Inventory Tracker Dashboard</h1>
+      <h3 style="text-align: center;">Add New Product</h3>
+      <form id="addForm">
+        <input type="text" id="pname" placeholder="Product Name" required />
+        <input type="text" id="pid" placeholder="Product ID" required />
+        <input type="number" id="pstock" placeholder="Stock" required />
+        <input type="number" id="preorder" placeholder="Reorder Level" required />
+        <button type="submit">Add Product</button>
+      </form>
+
+      <div class="search">
+        <input type="text" placeholder="Search by product name or ID..." />
+      </div>
+
+    <table id="productTable">
+  <thead>
+    <tr>
+      <th>Product Name</th>
+      <th>Product ID</th>
+      <th>In Stock</th>
+      <th>Reorder Level</th>
+      <th>Status</th>
+      <th>Last Updated</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="productTableBody">
+    <!-- Dynamic rows will be inserted here by JavaScript -->
+  </tbody>
+</table>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Inventory System</p>
+  </footer>
+
+ <script type="module" src="sample.js"></script>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
